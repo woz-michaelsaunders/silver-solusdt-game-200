@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "log-rotate": "^0.2.8",
+    "pm2": "^6.0.5"
+  }
+}
