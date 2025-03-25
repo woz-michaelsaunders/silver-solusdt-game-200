@@ -2,3 +2,4 @@ models/
 venv/
 data/
 data/*
+node_modules/
