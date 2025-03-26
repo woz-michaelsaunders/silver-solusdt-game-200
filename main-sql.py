@@ -497,6 +497,19 @@ data['CCI'] = talib.CCI(data['High'], data['Low'], data['closePrice'], timeperio
 data['ATR'] = talib.ATR(data['High'], data['Low'], data['closePrice'], timeperiod=14)
 data['MFI'] = talib.MFI(data['High'], data['Low'], data['closePrice'], data['Volume'], timeperiod=14)
 # Calculate VWAP using `ta`
+
+data['day_of_week'] = data['Timestamp'].dt.dayofweek
+data['hour'] = data['Timestamp'].dt.hour
+data['week_of_month'] = data['Timestamp'].apply(lambda x: (x.day - 1) // 7 + 1)
+data['Pivot'] = (data['High'] + data['Low'] + data['closePrice']) / 3
+data['R1'] = 2 * data['Pivot'] - data['Low']
+data['S1'] = 2 * data['Pivot'] - data['High']
+data['R2'] = data['Pivot'] + (data['High'] - data['Low'])
+data['S2'] = data['Pivot'] - (data['High'] - data['Low'])
+data['R3'] = data['High'] + 2 * (data['Pivot'] - data['Low'])
+data['S3'] = data['Low'] - 2 * (data['High'] - data['Pivot'])
+data['bullish_engulfing'] = talib.CDLENGULFING(data['Open'], data['High'], data['Low'], data['closePrice'])
+
 vwap = VolumeWeightedAveragePrice(
     high=data['High'],
     low=data['Low'],
@@ -505,6 +518,13 @@ vwap = VolumeWeightedAveragePrice(
     window=14
 )
 data['VWAP'] = vwap.volume_weighted_average_price()
+
+pattern_funcs = [f for f in dir(talib) if f.startswith('CDL')]
+
+for func_name in pattern_funcs:
+   func = getattr(talib, func_name)
+   data[func_name.lower()] = func(data['Open'], data['High'], data['Low'], data['closePrice'])
+
 data.drop('Timestamp',axis=1,inplace=True)
 # Convert to timestamp in milliseconds
 #data["startTime"] = data["Timestamp"]
